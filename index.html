@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <title>San Francisco Food Trucks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <!--[if lt IE 9]>
+    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="css/styles.css" rel="stylesheet">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="http://maps.googleapis.com/maps/api/js?sensor=false&extension=.js&output=embed"></script>
+  <script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+  <script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.6/underscore-min.js"></script>
+  <script src="http://ajax.cdnjs.com/ajax/libs/backbone.js/0.3.3/backbone-min.js"></script>
+
+
+  <script src="js/bootstrap.min.js"></script>
+
+  <script src="js/index.js"></script>
+  <script src="js/google.maps.index.js"></script>
+
+</head>
+<body>
+
+  <!-- begin template -->
+  <div class="navbar navbar-custom navbar-fixed-top">
+   <div class="navbar-header"><a class="navbar-brand" href="#">SF Food Trucks</a>
+        <a class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li>&nbsp;</li>
+        </ul>
+      </div>
+  </div>
+
+  <div id="map-canvas"></div>
+  <div class="container-fluid" id="main">
+    <div class="row">
+      <div class="col-xs-4 movie-list" id="left">
+
+        <h2>SF Food Trucks Geolocated</h2>
+
+        <!-- search results -->
+        <span id="results"></span>
+
+        <p>
+        The data is available on <a href="http://www.datasf.org/">DataSF</a>: <a href="https://data.sfgov.org/Permitting/Mobile-Food-Facility-Permit/rqzj-sfat">Food
+        Trucks</a>.
+        </p>
+
+      </div>
+      <div class="col-xs-8"><!--map-canvas will be postioned here--></div>
+
+    </div>
+  </div>
+  </div>
+  <!-- end template -->
+
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+# get data
+# push the data to sqlAlchamy
+# run server on 8887
+# implement endpoint to get food trucks in around a location
+
+# Add few location suggestions
+* on location click zoom down to that location
+* reset
+* render facilities
+
+* save db pass
+
+
+
+# clean up app.coffee
+# cleanup js/google.maps.index.js
+* docs
+* clean up load_elasticsearch
+* clean up requirements.txt
+* lint py
+
+* requirements.txt
+** add eleasticsearch-py
+* write setup.sh
+
+* update readme
+** overview
+*** mention each app.coffee server.py etc
+** run test
+** run server
+** dev grunt
+** data engineering
+** explain limitation of data list
+** multi field
+
+** Improvements
+*** auto complete
+*** paging
+*** multi field query
+*** automation
+
+** create demo video
+
+
+https://gist.github.com/wingdspur/2026107
