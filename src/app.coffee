@@ -1,10 +1,18 @@
 ###
+SF Food Truck UI, includes models and views
 ###
 jQuery ->
 
   class GoogleMaps
+    ###
+    A container to hold all google map interactions.
+    ###
 
     @dropMarker: (latitude, longitude, animation='DROP', letter='Z') ->
+      ###
+      Given latitude, longitude, animation='DROP', letter='Z'
+      drops a marker with the appropriate animation on maps
+      ###
       switch animation
         when 'BOUNCE'
           animation = google.maps.Animation.BOUNCE
@@ -25,18 +33,26 @@ jQuery ->
 
 
   class ResultModel extends Backbone.Model
-
+    ###
+    Search Result model
+    a instance of this model is created for each record returned from the server.
+    ###
     defaults:
       part1: 'Hello'
       part2: 'Backbone'
 
-  class Results extends Backbone.Collection
 
+  class Results extends Backbone.Collection
+    ###
+    A Collection container to hold previously defined ResultModel
+    ###
     model: ResultModel
 
 
   class ResultView extends Backbone.View
-
+    ###
+    A view corresponding to each ResultModel instance
+    ###
     initialize: ->
       _.bindAll @
 
@@ -85,6 +101,10 @@ jQuery ->
       $(@el).remove()
 
     onClickLocation: (e) ->
+      ###
+      function fired in response to the onClick event for a location
+      this animates the corresponding marker for this address.
+      ###
       latitude = e.target.getAttribute('latitude')
       longitude = e.target.getAttribute('longitude')
       letter = e.target.getAttribute('letter')
@@ -98,7 +118,9 @@ jQuery ->
 
 
   class ResultsView extends Backbone.View
-
+    ###
+    The contained holding all individual result views.
+    ###
     el: $ 'span#results'
 
     initialize: ->
@@ -115,6 +137,10 @@ jQuery ->
       $(@el).append '<ul id="movies"></ul>'
 
     renderNoResult: ->
+      ###
+      Renders the no result section when no models have yet been retrieved.
+      This section all so includes few location suggestions
+      ###
       $('#reverse-geo').html """
       <h4>Please select a location.</h4>
       """
@@ -144,6 +170,9 @@ jQuery ->
       $('#no-result').remove()
 
     createResult: (resultData) =>
+      ###
+      Given a resultData obj, creates a resultModel.
+      ###
       resultModel = new ResultModel(resultData)
       locationMarker = GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString(), 'DROP', resultData.letter)
       @locationMarkers.push(locationMarker)
@@ -152,12 +181,16 @@ jQuery ->
       resultModel
 
     appendItem: (resultModel) ->
+      ###
+      This function is fired in-respond to a new model addtion to this collection.
+      It renders the result view for this model and appends the view to the results listing.
+      ###
       item_view = new ResultView model: resultModel
       $('span#results').append item_view.render().el
 
     reset: =>
       ###
-      Clears all locationMarkers and destroys all models1
+      Clears all locationMarkers and destroys all models
       ###
       for locationMarker in @locationMarkers
         locationMarker.setMap(null)
@@ -167,6 +200,13 @@ jQuery ->
 
 
   class SearchController extends Backbone.View
+    ###
+    Master App controller responsible for
+    1. intializing all underlying view/controllers.
+    2. Fetch searchResults from server for user requests.
+    3. Finally add searchResults to the resultsView.
+    ###
+
     el: $ 'body'
     searchFieldEl: $('#search-field')
     searchFieldOptionsEl: $('#search-field-options')
@@ -258,6 +298,9 @@ jQuery ->
         $('#suggestions').append "<option value=\"#{suggestion}\">"
 
     reverseGeocoder: (latitude, longitude) =>
+      ###
+      Retreives human readable address for a user requested co-ordinates.
+      ###
       geocoder = new google.maps.Geocoder();
 
       latlng = new google.maps.LatLng(latitude, longitude)
@@ -270,32 +313,39 @@ jQuery ->
           """
 
     search: (latitude=37.758895, longitude=-122.41472420000002) =>
+      ###
+      Trigger for every user request
+      Firstly, fetches searchResults from server for user requests.
+      on success adds searchResults to the resultsView.
+      ###
       @reverseGeocoder(latitude, longitude)
+
+      #zoom into to the user requested location on map
       center = new google.maps.LatLng(latitude, longitude)
       map.setCenter(center)
       map.setZoom(15)
 
+      # fire the ajax request to fetch searchResults from API endpoint
       $.ajax
-        # url: "/movies?query=#{searchText}&field=#{@searchField.value}"
         url: "/facility?latitude=#{latitude}&longitude=#{longitude}"
         dataType: "json"
         error: (jqXHR, textStatus, errorThrown) ->
           console.error jqXHR, textStatus, errorThrown
 
         success: (searchResults, textStatus, jqXHR) =>
-          console.log searchResults, textStatus, jqXHR
+          #on success adds searchResults to the resultsView.
           @resultsView.reset()
           @resultsView.removeNoReuslt() if searchResults.facilities.length > 0
-          # @addSuggestions(searchResults.movies)
           for resultData in searchResults.facilities[0..10]
-            # console.log resultData
-            # GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString())
             @resultsView.createResult(resultData)
 
     onClickMap: (e) =>
+      ###
+      triggered when user clicks on a location in the map
+      call the search function for user requested co-ordinates
+      ###
       latitude = e.latLng.lat()
       longitude = e.latLng.lng()
-      console.log latitude, longitude
       @search(latitude, longitude)
 
     events:
@@ -312,7 +362,7 @@ jQuery ->
     success()
 
   _initialize = ->
+    # initializa the app once google maps has loaded.
     searchController = new SearchController()
-
 
   google.maps.event.addDomListener(window, 'load', _initialize)
