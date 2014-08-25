@@ -86,7 +86,7 @@ class FacilityRequestHandler(BaseRequestHandler):
 
 
 class App(tornado.web.Application):
-    """Main app suggestions singleton is an attribute of this object."""
+    """Main app"""
 
     handlers = [
         (r"/facility/*([a-zA-Z0-9-]*)", FacilityRequestHandler),
