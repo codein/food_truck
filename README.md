@@ -36,7 +36,7 @@ The codebase mainly consists of
 
 ### Setup
 * the setup involves primarily going through ./setup.sh
-    ** Data loading.
+    * Data loading.
     ```
         # setup db
         python data/sql_orm.py
@@ -44,12 +44,12 @@ The codebase mainly consists of
         cd data
         python data_engineering.py
     ```
-    ** Starting server.
+    * Starting server.
     ```
     ./run_server.sh
     ```
 
-    ** Running unitest.
+    * Running unitest.
     ```
     ./test_runnner.sh
     ```
