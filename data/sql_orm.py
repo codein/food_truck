@@ -1,17 +1,24 @@
+"""
+ORM definition
+Script to create persistance tables in mysql
+"""
+
+from sqlalchemy import Column
 from sqlalchemy import create_engine
+from sqlalchemy import Float
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Float
-
 engine = create_engine('mysql://robin:varghese@localhost:3306/food_truck_db', echo=False)
-
 Session = sessionmaker(bind=engine)
 session = Session()
-
 Base = declarative_base()
 
+
 class MobileFoodFacility(Base):
+    """ORM for out facility/food truck object"""
     __tablename__ = 'mobile_food_facility'
 
     id = Column(Integer, primary_key=True)
@@ -39,6 +46,7 @@ class MobileFoodFacility(Base):
     x = Column(String(100))
     y = Column(String(100))
 
+    # json serializer fields
     json_attributes = [
         'applicant',
         'facilitytype',
@@ -60,18 +68,22 @@ class MobileFoodFacility(Base):
                 setattr(self, key, value)
 
     def __repr__(self):
-            return "<MobileFoodFacility(%d, %s, %s, %s, %s)>" % (self.id,
-                                                      self.applicant,
-                                                      self.facilitytype,
-                                                      self.latitude,
-                                                      self.longitude)
+        """string"""
+        return "<MobileFoodFacility(%d, %s, %s, %s, %s)>" % (self.id,
+                                                  self.applicant,
+                                                  self.facilitytype,
+                                                  self.latitude,
+                                                  self.longitude)
 
     def to_json(self):
+        """json serializer"""
         record = {}
         for attribute in self.json_attributes:
             record[attribute] = getattr(self, attribute)
 
         return record
 
+
 if __name__ == "__main__":
+    # script to create tables in mysql
     Base.metadata.create_all(engine)

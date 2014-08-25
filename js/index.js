@@ -11,12 +11,13 @@ SF Food Truck UI, includes models and views
   jQuery(function() {
     var GoogleMaps, ResultModel, ResultView, Results, ResultsView, SearchController, _initialize;
     GoogleMaps = (function() {
-      function GoogleMaps() {}
-
 
       /*
       A container to hold all google map interactions.
        */
+      function GoogleMaps() {}
+
+      GoogleMaps.locationMarkers = [];
 
       GoogleMaps.dropMarker = function(latitude, longitude, animation, letter) {
         var marker, position;
@@ -42,13 +43,28 @@ SF Food Truck UI, includes models and views
             animation = google.maps.Animation.DROP;
         }
         position = new google.maps.LatLng(latitude, longitude);
-        return marker = new google.maps.Marker({
+        marker = new google.maps.Marker({
           position: position,
           map: map,
           draggable: false,
           animation: animation,
           icon: "http://maps.google.com/mapfiles/marker" + letter + ".png"
         });
+        this.locationMarkers.push(marker);
+        return marker;
+      };
+
+      GoogleMaps.clearAllMarkers = function() {
+
+        /*clear all markers */
+        var locationMarker, _i, _len, _ref, _results;
+        _ref = this.locationMarkers;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          locationMarker = _ref[_i];
+          _results.push(locationMarker.setMap(null));
+        }
+        return _results;
       };
 
       return GoogleMaps;
@@ -166,8 +182,7 @@ SF Food Truck UI, includes models and views
         this.collection = new Results;
         this.collection.bind('add', this.appendItem);
         this.counter = 0;
-        this.render();
-        return this.locationMarkers = [];
+        return this.render();
       };
 
       ResultsView.prototype.render = function() {
@@ -193,10 +208,9 @@ SF Food Truck UI, includes models and views
         /*
         Given a resultData obj, creates a resultModel.
          */
-        var locationMarker, resultModel;
+        var resultModel;
         resultModel = new ResultModel(resultData);
-        locationMarker = GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString(), 'DROP', resultData.letter);
-        this.locationMarkers.push(locationMarker);
+        GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString(), 'DROP', resultData.letter);
         this.collection.add(resultModel);
         return resultModel;
       };
@@ -219,12 +233,7 @@ SF Food Truck UI, includes models and views
         /*
         Clears all locationMarkers and destroys all models
          */
-        var locationMarker, _i, _len, _ref;
-        _ref = this.locationMarkers;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          locationMarker = _ref[_i];
-          locationMarker.setMap(null);
-        }
+        GoogleMaps.clearAllMarkers();
         this.collection.each(function(model) {
           return model.destroy();
         });
@@ -239,9 +248,9 @@ SF Food Truck UI, includes models and views
 
       function SearchController() {
         this.onClickMap = __bind(this.onClickMap, this);
+        this.onClickSearchSuggestions = __bind(this.onClickSearchSuggestions, this);
         this.search = __bind(this.search, this);
         this.reverseGeocoder = __bind(this.reverseGeocoder, this);
-        this.onClickSearchSuggestions = __bind(this.onClickSearchSuggestions, this);
         return SearchController.__super__.constructor.apply(this, arguments);
       }
 
@@ -259,17 +268,6 @@ SF Food Truck UI, includes models and views
         this.resultsView = new ResultsView;
         this.resultsView.renderNoResult();
         return google.maps.event.addListener(map, 'click', this.onClickMap);
-      };
-
-      SearchController.prototype.onClickSearchSuggestions = function(e) {
-
-        /*
-        function trigger when user clicks on any of the suggested locations.
-         */
-        var latitude, longitude;
-        latitude = e.target.getAttribute('latitude');
-        longitude = e.target.getAttribute('longitude');
-        return this.search(latitude, longitude);
       };
 
       SearchController.prototype.reverseGeocoder = function(latitude, longitude) {
@@ -332,6 +330,17 @@ SF Food Truck UI, includes models and views
             };
           })(this)
         });
+      };
+
+      SearchController.prototype.onClickSearchSuggestions = function(e) {
+
+        /*
+        function trigger when user clicks on any of the suggested locations.
+         */
+        var latitude, longitude;
+        latitude = e.target.getAttribute('latitude');
+        longitude = e.target.getAttribute('longitude');
+        return this.search(latitude, longitude);
       };
 
       SearchController.prototype.onClickMap = function(e) {

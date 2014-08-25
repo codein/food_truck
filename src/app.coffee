@@ -7,6 +7,7 @@ jQuery ->
     ###
     A container to hold all google map interactions.
     ###
+    @locationMarkers = []
 
     @dropMarker: (latitude, longitude, animation='DROP', letter='Z') ->
       ###
@@ -31,6 +32,13 @@ jQuery ->
         animation: animation
         icon: "http://maps.google.com/mapfiles/marker#{letter}.png"
 
+      @locationMarkers.push(marker)
+      marker
+
+    @clearAllMarkers: ->
+      ###clear all markers###
+      for locationMarker in @locationMarkers
+        locationMarker.setMap(null)
 
   class ResultModel extends Backbone.Model
     ###
@@ -131,7 +139,6 @@ jQuery ->
 
       @counter = 0
       @render()
-      @locationMarkers = []
 
     render: ->
       $(@el).append '<ul id="movies"></ul>'
@@ -174,8 +181,7 @@ jQuery ->
       Given a resultData obj, creates a resultModel.
       ###
       resultModel = new ResultModel(resultData)
-      locationMarker = GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString(), 'DROP', resultData.letter)
-      @locationMarkers.push(locationMarker)
+      GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString(), 'DROP', resultData.letter)
 
       @collection.add resultModel
       resultModel
@@ -192,8 +198,7 @@ jQuery ->
       ###
       Clears all locationMarkers and destroys all models
       ###
-      for locationMarker in @locationMarkers
-        locationMarker.setMap(null)
+      GoogleMaps.clearAllMarkers()
 
       @collection.each((model) -> model.destroy())
       @renderNoResult()
@@ -213,14 +218,6 @@ jQuery ->
       @resultsView = new ResultsView
       @resultsView.renderNoResult()
       google.maps.event.addListener(map, 'click', @onClickMap)
-
-    onClickSearchSuggestions: (e) =>
-      ###
-      function trigger when user clicks on any of the suggested locations.
-      ###
-      latitude = e.target.getAttribute('latitude')
-      longitude = e.target.getAttribute('longitude')
-      @search(latitude, longitude)
 
     reverseGeocoder: (latitude, longitude) =>
       ###
@@ -263,6 +260,14 @@ jQuery ->
           @resultsView.removeNoReuslt() if searchResults.facilities.length > 0
           for resultData in searchResults.facilities[0..10]
             @resultsView.createResult(resultData)
+
+    onClickSearchSuggestions: (e) =>
+      ###
+      function trigger when user clicks on any of the suggested locations.
+      ###
+      latitude = e.target.getAttribute('latitude')
+      longitude = e.target.getAttribute('longitude')
+      @search(latitude, longitude)
 
     onClickMap: (e) =>
       ###

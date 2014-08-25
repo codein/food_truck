@@ -1,8 +1,7 @@
 """
-Test constitues
+Test constitutes
 
-* test suggestions end point
-* test movies end point.
+* test facility end point
 """
 
 
@@ -23,12 +22,27 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_default_search(self):
         """
-        Tests the default search without any fields
-        Default field is title
+        Tests the facility search
+        Ensure the record contain all require attributes.
         """
+        json_attributes = [
+            'applicant',
+            'facilitytype',
+            'fooditems',
+            'latitude',
+            'longitude',
+            'address',
+            'schedule',
+            'status',
+            'locationdescription',
+        ]
+
         data = self.get('facility?latitude=37.758895&longitude=-122.41472420000002')
-        print data
-        # self.assertTrue('The Ten Commandments' in data['movies'][0]['title'])
+        self.assertTrue(len(data['facilities']) > 0)
+        facility_record = data['facilities'][0]
+
+        for attribute in json_attributes:
+            self.assertTrue(attribute in facility_record)
 
     def _loads_response(self, response):
         """given a response object json.loads the data and return."""
@@ -40,6 +54,7 @@ class TestSequenceFunctions(unittest.TestCase):
         url = self._get_url(path)
         response = requests.get(url)
         return self._loads_response(response)
+
 
 if __name__ == '__main__':
     unittest.main()

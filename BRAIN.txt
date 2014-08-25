@@ -15,7 +15,8 @@
 
 * save db pass
 
-
+unittest
+rm un used files
 
 # clean up app.coffee
 # cleanup js/google.maps.index.js

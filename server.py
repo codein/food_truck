@@ -1,6 +1,8 @@
 """
 tornado web server
-Implement a REST server that returns suggestions and movies
+Implements a REST server that
+1. servers the staic assests for the app /static/index.html
+2. server the API endpoint at /facility
 """
 
 import json
@@ -12,7 +14,6 @@ import Levenshtein
 import tornado.ioloop
 import tornado.web
 import tornado.gen
-
 
 from data.sql_orm import MobileFoodFacility
 from data.sql_orm import session
@@ -41,11 +42,14 @@ class BaseRequestHandler(tornado.web.RequestHandler):
 
 @tornado.gen.coroutine
 def search(session, latitude, longitude):
+    """
+    Given latitude and longitude retrieves food trucks around it.
+    """
     min_latitude = latitude - 0.005
     max_latitude = latitude + 0.005
-
     min_longitude = longitude - 0.005
     max_longitude = longitude + 0.005
+
     records = session.query(MobileFoodFacility).\
         filter(MobileFoodFacility.latitude<=max_latitude).\
         filter(MobileFoodFacility.latitude>=min_latitude).\
@@ -59,31 +63,33 @@ def search(session, latitude, longitude):
         search_result['letter'] = chr(letter_ord)
         letter_ord += 1
         search_results.append(search_result)
-    # logging.info("Got %d Hits for %s", res['hits']['total'], query)
-    # search_results = [hit["_source"] for hit in res['hits']['hits']]
-    print len(search_results)
+
+    logging.info("Got %d Hits for latitude %s longitude %s", len(search_results), latitude, longitude)
     raise tornado.gen.Return(search_results)
 
 class FacilityRequestHandler(BaseRequestHandler):
     """
+    Handler to server /facility endpoint
     """
 
     @tornado.web.asynchronous
     @tornado.gen.coroutine
     def get(self, query):
         """
+        Servers the GET endpoint to retrieve food trucks for a given latitude and longitude
         """
         latitude = self.get_argument('latitude', default='37.758895')
         longitude = self.get_argument('longitude', default='-122.41472420000002')
         latitude = float(latitude)
         longitude = float(longitude)
-        print latitude, longitude
 
         search_results = yield search(self.session, latitude, longitude)
         self.json_write(search_results, 'facilities')
 
+
 class App(tornado.web.Application):
     """Main app suggestions singleton is an attribute of this object."""
+
     handlers = [
         (r"/facility/*([a-zA-Z0-9-]*)", FacilityRequestHandler),
         (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': './'}),
@@ -91,15 +97,6 @@ class App(tornado.web.Application):
 
     def __init__(self):
         tornado.web.Application.__init__(self, self.handlers, debug=True)
-
-    @property
-    def suggestions(self):
-        """intantiates the list of suggestions."""
-        if not hasattr(self, '_suggestions'):
-            suggestions = [str(word).lower() for word in json.loads(words)]
-            self._suggestions = suggestions
-
-        return self._suggestions
 
     @property
     def session(self):
@@ -114,4 +111,3 @@ if __name__ == "__main__":
     application = App()
     application.listen(8887)
     tornado.ioloop.IOLoop.instance().start()
-
