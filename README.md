@@ -62,6 +62,7 @@ grunt watch
 on saving a .coffee file grunt compiles coffescript into javascript.
 
 ### Improvements
+* Implement paging of query results
 * Ansible scriptsfor automation around setup
 * User should be able to control the serach radius around a user specified location.
 * Identify and remove duplicate food trucks in same location with the same ownership.
@@ -69,4 +70,3 @@ on saving a .coffee file grunt compiles coffescript into javascript.
 * Add ability to narrow down to a location using a search inplimentation.
 * use nginx to load balance
 * use redis to cache results
-
