@@ -4,9 +4,12 @@
 # implement endpoint to get food trucks in around a location
 
 # Add few location suggestions
-* on location click zoom down to that location
-* reset
+# on location click zoom down to that location
 * render facilities
+* reset
+* pass block size to server
+* make results unique
+* geolocated for address
 
 * save db pass
 

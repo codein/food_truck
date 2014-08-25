@@ -4,7 +4,7 @@ jQuery ->
 
   class GoogleMaps
 
-    @dropMarker: (latitude, longitude, animation='DROP') ->
+    @dropMarker: (latitude, longitude, animation='DROP', letter='Z') ->
       switch animation
         when 'BOUNCE'
           animation = google.maps.Animation.BOUNCE
@@ -21,6 +21,7 @@ jQuery ->
         map: map
         draggable: false
         animation: animation
+        icon: "http://maps.google.com/mapfiles/marker#{letter}.png"
 
 
   class ResultModel extends Backbone.Model
@@ -55,33 +56,35 @@ jQuery ->
 
         <div class="panel panel-default">
           <div class="panel-heading">
-            <a href="">#{@model.get 'title'}</a>
-            <span class="badge pull-right">#{@model.get 'release_year'}</span>
+            <i class="fa fa-truck"></i>
+            <a href="">#{@model.get 'applicant'}</a>
+            <span class="badge pull-right"> #{@model.get 'facilitytype'}</span>
           </div>
         </div>
-        <p><i class="fa fa-user"></i> #{@model.get 'writer'} <i class="fa fa-pencil"></i></p>
-        <p><i class="fa fa-user"></i> #{@model.get 'director'} <i class="fa fa-scissors"></i></p>
-        <p><i class="fa fa-users"></i> #{@model.get('actors').join(', ')}</p>
-        <p><i class="fa fa-smile-o"></i> #{@model.get('fun_facts').join('. ')}</p>
-        <p><i class="fa fa-video-camera"></i> #{@model.get 'production_company'}</p>
-        <p><i class="fa fa-file-video-o"></i> #{@model.get 'distributor'}</p>
-      """
+        <p><i class="fa fa-spoon"></i><i class="fa fa-cutlery"></i> #{@model.get('fooditems').replace(/:/g, ',')}</p>
 
-      for location in @model.get('locations')
-        $(@el).append """
-            <p ng-click="dropMarker(location.latitude, location.longitude, 'bounce')">
+        <p>
+            <img src="http://maps.google.com/mapfiles/marker#{@model.get 'letter'}.png"/>
+          <span class="location">
+            <a href="#" letter=#{@model.get 'letter'} longitude=#{@model.get 'longitude'} latitude=#{@model.get 'latitude'}>
+              #{@model.get 'address'}
               <i class="fa fa-location-arrow"></i>
-              <span class="location">
-                <a href="#" longitude=#{location.longitude} latitude=#{location.latitude}>
-                  #{location.address}
-                </a>
-              </span>
-            </p>
-        """
+            </a>
+          </span>
+        </p>
 
-      $(@el).append """
+        <p>
+          <span>
+            <i class="fa fa-clock-o"></i>
+            <a href="#{@model.get 'schedule'}">
+              Schedule
+            </a>
+          </span>
+        </p>
+
         <hr>
       """
+
       @
 
     # `unrender()` removes the calling list item from the DOM. This uses
@@ -92,7 +95,8 @@ jQuery ->
     onClickLocation: (e) ->
       latitude = e.target.getAttribute('latitude')
       longitude = e.target.getAttribute('longitude')
-      GoogleMaps.dropMarker(latitude, longitude, 'BOUNCE')
+      letter = e.target.getAttribute('letter')
+      GoogleMaps.dropMarker(latitude, longitude, 'BOUNCE', letter)
 
 
     # `remove()` calls the model's
@@ -127,6 +131,9 @@ jQuery ->
       $(@el).append '<ul id="movies"></ul>'
 
     renderNoResult: ->
+      $('#reverse-geo').html """
+      <h4>No location selected</h4>
+      """
       $(@el).html """
       <span id="no-result">
          <div class="panel panel-default">
@@ -153,9 +160,8 @@ jQuery ->
 
     createResult: (resultData) =>
       resultModel = new ResultModel(resultData)
-      for location in resultData.locations
-        locationMarker = GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString())
-        @locationMarkers.push(locationMarker)
+      locationMarker = GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString(), 'DROP', resultData.letter)
+      @locationMarkers.push(locationMarker)
 
       @collection.add resultModel
       resultModel
@@ -266,10 +272,24 @@ jQuery ->
       for suggestion in _.uniq(suggestions)
         $('#suggestions').append "<option value=\"#{suggestion}\">"
 
+    reverseGeocoder: (latitude, longitude) =>
+      geocoder = new google.maps.Geocoder();
+
+      latlng = new google.maps.LatLng(latitude, longitude)
+
+      geocoder.geocode {latLng:latlng}, (data,status) =>
+        if status is google.maps.GeocoderStatus.OK
+          $('#reverse-geo').html """
+            <h5>Food trucks near</h5>
+            <h5>#{data[1].formatted_address}</h5>
+          """
+
     search: (latitude=37.758895, longitude=-122.41472420000002) =>
-      searchText = @searchTextEl.val()
-      console.log 'searchText', searchText
-      searchText = encodeURIComponent(searchText)
+      @reverseGeocoder(latitude, longitude)
+      center = new google.maps.LatLng(latitude, longitude)
+      map.setCenter(center)
+      map.setZoom(15)
+
       $.ajax
         # url: "/movies?query=#{searchText}&field=#{@searchField.value}"
         url: "/facility?latitude=#{latitude}&longitude=#{longitude}"
@@ -280,12 +300,12 @@ jQuery ->
         success: (searchResults, textStatus, jqXHR) =>
           console.log searchResults, textStatus, jqXHR
           @resultsView.reset()
-          # @resultsView.removeNoReuslt() if searchResults.movies.length > 0
+          @resultsView.removeNoReuslt() if searchResults.facilities.length > 0
           # @addSuggestions(searchResults.movies)
           for resultData in searchResults.facilities[0..10]
             # console.log resultData
-            GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString())
-            # @resultsView.createResult(resultData)
+            # GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString())
+            @resultsView.createResult(resultData)
 
     onClickMap: (e) =>
       latitude = e.latLng.lat()

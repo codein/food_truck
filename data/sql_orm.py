@@ -39,6 +39,16 @@ class MobileFoodFacility(Base):
     x = Column(String(100))
     y = Column(String(100))
 
+    json_attributes = [
+        'applicant',
+        'facilitytype',
+        'fooditems',
+        'latitude',
+        'longitude',
+        'address',
+        'schedule',
+    ]
+
     def __init__(self, **kwargs):
         if kwargs is not None:
             for key, value in kwargs.iteritems():
@@ -53,6 +63,13 @@ class MobileFoodFacility(Base):
                                                       self.facilitytype,
                                                       self.latitude,
                                                       self.longitude)
+
+    def to_json(self):
+        record = {}
+        for attribute in self.json_attributes:
+            record[attribute] = getattr(self, attribute)
+
+        return record
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)

@@ -53,9 +53,11 @@ def search(session, latitude, longitude):
         filter(MobileFoodFacility.longitude>=min_longitude)
 
     search_results = []
-    for record in records:
-        search_result = {'latitude': record.latitude,
-            'longitude':record.longitude}
+    letter_ord = ord('A')
+    for record in records[:26]:
+        search_result = record.to_json()
+        search_result['letter'] = chr(letter_ord)
+        letter_ord += 1
         search_results.append(search_result)
     # logging.info("Got %d Hits for %s", res['hits']['total'], query)
     # search_results = [hit["_source"] for hit in res['hits']['hits']]

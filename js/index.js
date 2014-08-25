@@ -12,10 +12,13 @@
     GoogleMaps = (function() {
       function GoogleMaps() {}
 
-      GoogleMaps.dropMarker = function(latitude, longitude, animation) {
+      GoogleMaps.dropMarker = function(latitude, longitude, animation, letter) {
         var marker, position;
         if (animation == null) {
           animation = 'DROP';
+        }
+        if (letter == null) {
+          letter = 'Z';
         }
         switch (animation) {
           case 'BOUNCE':
@@ -32,7 +35,8 @@
           position: position,
           map: map,
           draggable: false,
-          animation: animation
+          animation: animation,
+          icon: "http://maps.google.com/mapfiles/marker" + letter + ".png"
         });
       };
 
@@ -82,14 +86,7 @@
       };
 
       ResultView.prototype.render = function() {
-        var location, _i, _len, _ref;
-        $(this.el).html("\n<div class=\"panel panel-default\">\n  <div class=\"panel-heading\">\n    <a href=\"\">" + (this.model.get('title')) + "</a>\n    <span class=\"badge pull-right\">" + (this.model.get('release_year')) + "</span>\n  </div>\n</div>\n<p><i class=\"fa fa-user\"></i> " + (this.model.get('writer')) + " <i class=\"fa fa-pencil\"></i></p>\n<p><i class=\"fa fa-user\"></i> " + (this.model.get('director')) + " <i class=\"fa fa-scissors\"></i></p>\n<p><i class=\"fa fa-users\"></i> " + (this.model.get('actors').join(', ')) + "</p>\n<p><i class=\"fa fa-smile-o\"></i> " + (this.model.get('fun_facts').join('. ')) + "</p>\n<p><i class=\"fa fa-video-camera\"></i> " + (this.model.get('production_company')) + "</p>\n<p><i class=\"fa fa-file-video-o\"></i> " + (this.model.get('distributor')) + "</p>");
-        _ref = this.model.get('locations');
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          location = _ref[_i];
-          $(this.el).append("<p ng-click=\"dropMarker(location.latitude, location.longitude, 'bounce')\">\n  <i class=\"fa fa-location-arrow\"></i>\n  <span class=\"location\">\n    <a href=\"#\" longitude=" + location.longitude + " latitude=" + location.latitude + ">\n      " + location.address + "\n    </a>\n  </span>\n</p>");
-        }
-        $(this.el).append("<hr>");
+        $(this.el).html("\n<div class=\"panel panel-default\">\n  <div class=\"panel-heading\">\n    <i class=\"fa fa-truck\"></i>\n    <a href=\"\">" + (this.model.get('applicant')) + "</a>\n    <span class=\"badge pull-right\"> " + (this.model.get('facilitytype')) + "</span>\n  </div>\n</div>\n<p><i class=\"fa fa-spoon\"></i><i class=\"fa fa-cutlery\"></i> " + (this.model.get('fooditems').replace(/:/g, ',')) + "</p>\n\n<p>\n    <img src=\"http://maps.google.com/mapfiles/marker" + (this.model.get('letter')) + ".png\"/>\n  <span class=\"location\">\n    <a href=\"#\" letter=" + (this.model.get('letter')) + " longitude=" + (this.model.get('longitude')) + " latitude=" + (this.model.get('latitude')) + ">\n      " + (this.model.get('address')) + "\n      <i class=\"fa fa-location-arrow\"></i>\n    </a>\n  </span>\n</p>\n\n<p>\n  <span>\n    <i class=\"fa fa-clock-o\"></i>\n    <a href=\"" + (this.model.get('schedule')) + "\">\n      Schedule\n    </a>\n  </span>\n</p>\n\n<hr>");
         return this;
       };
 
@@ -98,10 +95,11 @@
       };
 
       ResultView.prototype.onClickLocation = function(e) {
-        var latitude, longitude;
+        var latitude, letter, longitude;
         latitude = e.target.getAttribute('latitude');
         longitude = e.target.getAttribute('longitude');
-        return GoogleMaps.dropMarker(latitude, longitude, 'BOUNCE');
+        letter = e.target.getAttribute('letter');
+        return GoogleMaps.dropMarker(latitude, longitude, 'BOUNCE', letter);
       };
 
       ResultView.prototype.remove = function() {
@@ -140,6 +138,7 @@
       };
 
       ResultsView.prototype.renderNoResult = function() {
+        $('#reverse-geo').html("<h4>No location selected</h4>");
         return $(this.el).html("<span id=\"no-result\">\n   <div class=\"panel panel-default\">\n      <div class=\"panel-heading\">\n        <a href=\"\">No Results</a>\n        <span class=\"badge pull-right\">0</span>\n      </div>\n    </div>\n    <p><i class=\"fa fa-keyboard-o\"></i> Click on a location in map</p>\n    <p><i class=\"fa fa-chevron-down fa-3\"></i>   or   <i class=\"fa fa-chevron-up fa-3\"></i></p>\n    <p><i class=\"fa fa-hand-o-up\"></i> Click one from below</p>\n    <ul id=\"search-suggestions\">\n      <li><a latitude=\"37.8018\" longitude=\"-122.4198\" href=\"#\">Russian Hill</a></li>\n      <li><a latitude=\"37.7952\" longitude=\"-122.4029\" href=\"#\">Financial District</a></li>\n      <li><a latitude=\"37.793230\" longitude=\"-122.414480\" href=\"#\">Nob Hill</a></li>\n      <li><a latitude=\"37.778448826783546\" longitude=\"-122.40564800798893\" href=\"#\">South of Market</a></li>\n      <li><a latitude=\"37.759179946191786\" longitude=\"-122.38921143114567\" href=\"#\">Dogpatch</a></li>\n    </ul>\n<span>");
       };
 
@@ -148,14 +147,10 @@
       };
 
       ResultsView.prototype.createResult = function(resultData) {
-        var location, locationMarker, resultModel, _i, _len, _ref;
+        var locationMarker, resultModel;
         resultModel = new ResultModel(resultData);
-        _ref = resultData.locations;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          location = _ref[_i];
-          locationMarker = GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString());
-          this.locationMarkers.push(locationMarker);
-        }
+        locationMarker = GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString(), 'DROP', resultData.letter);
+        this.locationMarkers.push(locationMarker);
         this.collection.add(resultModel);
         return resultModel;
       };
@@ -194,6 +189,7 @@
       function SearchController() {
         this.onClickMap = __bind(this.onClickMap, this);
         this.search = __bind(this.search, this);
+        this.reverseGeocoder = __bind(this.reverseGeocoder, this);
         this.debounceSearch = __bind(this.debounceSearch, this);
         this.onClickSearchSuggestions = __bind(this.onClickSearchSuggestions, this);
         this._setQuery = __bind(this._setQuery, this);
@@ -316,17 +312,33 @@
         return _results;
       };
 
+      SearchController.prototype.reverseGeocoder = function(latitude, longitude) {
+        var geocoder, latlng;
+        geocoder = new google.maps.Geocoder();
+        latlng = new google.maps.LatLng(latitude, longitude);
+        return geocoder.geocode({
+          latLng: latlng
+        }, (function(_this) {
+          return function(data, status) {
+            if (status === google.maps.GeocoderStatus.OK) {
+              return $('#reverse-geo').html("<h5>Food trucks near</h5>\n<h5>" + data[1].formatted_address + "</h5>");
+            }
+          };
+        })(this));
+      };
+
       SearchController.prototype.search = function(latitude, longitude) {
-        var searchText;
+        var center;
         if (latitude == null) {
           latitude = 37.758895;
         }
         if (longitude == null) {
           longitude = -122.41472420000002;
         }
-        searchText = this.searchTextEl.val();
-        console.log('searchText', searchText);
-        searchText = encodeURIComponent(searchText);
+        this.reverseGeocoder(latitude, longitude);
+        center = new google.maps.LatLng(latitude, longitude);
+        map.setCenter(center);
+        map.setZoom(15);
         return $.ajax({
           url: "/facility?latitude=" + latitude + "&longitude=" + longitude,
           dataType: "json",
@@ -338,11 +350,14 @@
               var resultData, _i, _len, _ref, _results;
               console.log(searchResults, textStatus, jqXHR);
               _this.resultsView.reset();
+              if (searchResults.facilities.length > 0) {
+                _this.resultsView.removeNoReuslt();
+              }
               _ref = searchResults.facilities.slice(0, 11);
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 resultData = _ref[_i];
-                _results.push(GoogleMaps.dropMarker(resultData.latitude.toString(), resultData.longitude.toString()));
+                _results.push(_this.resultsView.createResult(resultData));
               }
               return _results;
             };
