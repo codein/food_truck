@@ -208,94 +208,19 @@ jQuery ->
     ###
 
     el: $ 'body'
-    searchFieldEl: $('#search-field')
-    searchFieldOptionsEl: $('#search-field-options')
-    searchTextEl: $('#search-text')
-
-    SEARCH_FIELDS:
-      DIRECTOR:
-        label: 'Director'
-        value: 'director'
-
-      RELEASE_YEAR:
-        label: 'Release year'
-        value: 'release_year'
-
-      TITLE:
-        label: 'Title'
-        value: 'title'
-
-      ADDRESS:
-        label: 'Address'
-        value: 'addresses'
-
-      ACTOR:
-        label: 'Actors'
-        value: 'actors'
-
-      WRITE:
-        label: 'Writer'
-        value: 'writer'
-
-      PRODUCTION_COMPANY:
-        label: 'Production Company'
-        value: 'production_company'
-
-      DISTRIBUTOR:
-        label: 'Distributor'
-        value: 'distributor'
-
-      FUN_FACTS:
-        label: 'Fun Facts'
-        value: 'fun_facts'
-
 
     initialize: ->
       @resultsView = new ResultsView
       @resultsView.renderNoResult()
-      @searchField = @SEARCH_FIELDS.TITLE
       google.maps.event.addListener(map, 'click', @onClickMap)
-      @render()
-
-    render: =>
-      @searchFieldEl.html """
-       #{@searchField.label} <span class="glyphicon glyphicon-chevron-down"></span>
-      """
-
-    onClickSearchField: (e) =>
-      fieldName = e.target.getAttribute('field')
-      @_setField(fieldName)
-
-    _setField: (fieldName) ->
-      @searchField = @SEARCH_FIELDS[fieldName]
-      @render()
-
-    _setQuery: (query) =>
-      @searchTextEl.val(query)
 
     onClickSearchSuggestions: (e) =>
+      ###
+      function trigger when user clicks on any of the suggested locations.
+      ###
       latitude = e.target.getAttribute('latitude')
       longitude = e.target.getAttribute('longitude')
       @search(latitude, longitude)
-
-    debounceSearch: =>
-      @_debounceSearch ?= _.debounce(@search, 500)
-      @_debounceSearch()
-
-    addSuggestions: (movies)->
-      $('#suggestions').html('')
-      suggestions = []
-      for movie in movies
-        suggestions = if @searchField.value in ['actors', 'addresses']
-          suggestions.concat(movie[@searchField.value])
-        else if @searchField.value is 'fun_facts'
-          _suggestions = (suggestion[0..50] for suggestion in movie[@searchField.value])
-          suggestions.concat(_suggestions)
-        else
-          suggestions.concat([movie[@searchField.value]])
-
-      for suggestion in _.uniq(suggestions)
-        $('#suggestions').append "<option value=\"#{suggestion}\">"
 
     reverseGeocoder: (latitude, longitude) =>
       ###
@@ -349,8 +274,6 @@ jQuery ->
       @search(latitude, longitude)
 
     events:
-      'keyup :input#search-text': 'debounceSearch'
-      'click #search-field-options': 'onClickSearchField'
       'click #search-suggestions': 'onClickSearchSuggestions'
 
   # We'll override

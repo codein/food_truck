@@ -241,11 +241,7 @@ SF Food Truck UI, includes models and views
         this.onClickMap = __bind(this.onClickMap, this);
         this.search = __bind(this.search, this);
         this.reverseGeocoder = __bind(this.reverseGeocoder, this);
-        this.debounceSearch = __bind(this.debounceSearch, this);
         this.onClickSearchSuggestions = __bind(this.onClickSearchSuggestions, this);
-        this._setQuery = __bind(this._setQuery, this);
-        this.onClickSearchField = __bind(this.onClickSearchField, this);
-        this.render = __bind(this.render, this);
         return SearchController.__super__.constructor.apply(this, arguments);
       }
 
@@ -259,116 +255,21 @@ SF Food Truck UI, includes models and views
 
       SearchController.prototype.el = $('body');
 
-      SearchController.prototype.searchFieldEl = $('#search-field');
-
-      SearchController.prototype.searchFieldOptionsEl = $('#search-field-options');
-
-      SearchController.prototype.searchTextEl = $('#search-text');
-
-      SearchController.prototype.SEARCH_FIELDS = {
-        DIRECTOR: {
-          label: 'Director',
-          value: 'director'
-        },
-        RELEASE_YEAR: {
-          label: 'Release year',
-          value: 'release_year'
-        },
-        TITLE: {
-          label: 'Title',
-          value: 'title'
-        },
-        ADDRESS: {
-          label: 'Address',
-          value: 'addresses'
-        },
-        ACTOR: {
-          label: 'Actors',
-          value: 'actors'
-        },
-        WRITE: {
-          label: 'Writer',
-          value: 'writer'
-        },
-        PRODUCTION_COMPANY: {
-          label: 'Production Company',
-          value: 'production_company'
-        },
-        DISTRIBUTOR: {
-          label: 'Distributor',
-          value: 'distributor'
-        },
-        FUN_FACTS: {
-          label: 'Fun Facts',
-          value: 'fun_facts'
-        }
-      };
-
       SearchController.prototype.initialize = function() {
         this.resultsView = new ResultsView;
         this.resultsView.renderNoResult();
-        this.searchField = this.SEARCH_FIELDS.TITLE;
-        google.maps.event.addListener(map, 'click', this.onClickMap);
-        return this.render();
-      };
-
-      SearchController.prototype.render = function() {
-        return this.searchFieldEl.html("" + this.searchField.label + " <span class=\"glyphicon glyphicon-chevron-down\"></span>");
-      };
-
-      SearchController.prototype.onClickSearchField = function(e) {
-        var fieldName;
-        fieldName = e.target.getAttribute('field');
-        return this._setField(fieldName);
-      };
-
-      SearchController.prototype._setField = function(fieldName) {
-        this.searchField = this.SEARCH_FIELDS[fieldName];
-        return this.render();
-      };
-
-      SearchController.prototype._setQuery = function(query) {
-        return this.searchTextEl.val(query);
+        return google.maps.event.addListener(map, 'click', this.onClickMap);
       };
 
       SearchController.prototype.onClickSearchSuggestions = function(e) {
+
+        /*
+        function trigger when user clicks on any of the suggested locations.
+         */
         var latitude, longitude;
         latitude = e.target.getAttribute('latitude');
         longitude = e.target.getAttribute('longitude');
         return this.search(latitude, longitude);
-      };
-
-      SearchController.prototype.debounceSearch = function() {
-        if (this._debounceSearch == null) {
-          this._debounceSearch = _.debounce(this.search, 500);
-        }
-        return this._debounceSearch();
-      };
-
-      SearchController.prototype.addSuggestions = function(movies) {
-        var movie, suggestion, suggestions, _i, _j, _len, _len1, _ref, _ref1, _results, _suggestions;
-        $('#suggestions').html('');
-        suggestions = [];
-        for (_i = 0, _len = movies.length; _i < _len; _i++) {
-          movie = movies[_i];
-          suggestions = (_ref = this.searchField.value) === 'actors' || _ref === 'addresses' ? suggestions.concat(movie[this.searchField.value]) : this.searchField.value === 'fun_facts' ? (_suggestions = (function() {
-            var _j, _len1, _ref1, _results;
-            _ref1 = movie[this.searchField.value];
-            _results = [];
-            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-              suggestion = _ref1[_j];
-              _results.push(suggestion.slice(0, 51));
-            }
-            return _results;
-          }).call(this), suggestions.concat(_suggestions)) : suggestions.concat([movie[this.searchField.value]]);
-        }
-        _ref1 = _.uniq(suggestions);
-        _results = [];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          suggestion = _ref1[_j];
-          _results.push($('#suggestions').append("<option value=\"" + suggestion + "\">"));
-        }
-        return _results;
       };
 
       SearchController.prototype.reverseGeocoder = function(latitude, longitude) {
@@ -446,8 +347,6 @@ SF Food Truck UI, includes models and views
       };
 
       SearchController.prototype.events = {
-        'keyup :input#search-text': 'debounceSearch',
-        'click #search-field-options': 'onClickSearchField',
         'click #search-suggestions': 'onClickSearchSuggestions'
       };
 
