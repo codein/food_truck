@@ -54,7 +54,7 @@ The codebase mainly consists of
     ./test_runnner.sh
     ```
 
-* Development
+### Development
 Grunt is used to compiling `src\app.coffee` into `js/index.js`
 ```
 grunt watch
