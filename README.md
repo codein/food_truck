@@ -9,9 +9,9 @@ A demo version is hosted at http://146.148.41.202:8887/static/index.html
 * Features
 * Codebase overview
 * Setup
-    ** Data loading.
-    ** Starting server.
-    ** Running unitest.
+    * Data loading.
+    * Starting server.
+    * Running unitest.
 * Development
 * Improvements
 
