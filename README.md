@@ -67,5 +67,6 @@ on saving a .coffee file grunt compiles coffescript into javascript.
 * Identify and remove duplicate food trucks in same location with the same ownership.
 * use grunt to minify the compiled js.
 * Add ability to narrow down to a location using a search inplimentation.
-
+* use nginx to load balance
+* use redis to cache results
 
