@@ -17,3 +17,9 @@ python data/sql_orm.py
 # load data
 cd data
 python data_engineering.py
+
+# run server
+./run_server
+
+# unitest
+./test_runner.sh
