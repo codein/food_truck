@@ -1,3 +1,5 @@
+## coding log
+
 # get data
 # push the data to sqlAlchamy
 # run server on 8887
@@ -5,11 +7,11 @@
 
 # Add few location suggestions
 # on location click zoom down to that location
-* render facilities
-* reset
+# render facilities
+# reset
 * pass block size to server
 * make results unique
-* geolocated for address
+# geolocated for address
 
 * save db pass
 

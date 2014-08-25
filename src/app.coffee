@@ -37,20 +37,12 @@ jQuery ->
 
   class ResultView extends Backbone.View
 
-    # tagName: 'div'
-
-    # `initialize()`
-    # binds [`change`](http://documentcloud.github.com/backbone/#Model-change)
-    # and [`remove`](http://documentcloud.github.com/backbone/#Collection-remove)
-    # to `@render` and `@unrender`, respectively.
     initialize: ->
       _.bindAll @
 
       @model.bind 'change', @render
       @model.bind 'remove', @unrender
 
-    # `render()` now includes two extra `span`s for swapping and deleting
-    # an item.
     render: =>
       $(@el).html """
 
@@ -61,6 +53,7 @@ jQuery ->
             <span class="badge pull-right"> #{@model.get 'facilitytype'}</span>
           </div>
         </div>
+        <p>#{@model.get('status')}</p>
         <p><i class="fa fa-spoon"></i><i class="fa fa-cutlery"></i> #{@model.get('fooditems').replace(/:/g, ',')}</p>
 
         <p>
@@ -72,6 +65,7 @@ jQuery ->
             </a>
           </span>
         </p>
+        <p>#{@model.get('locationdescription')}</p>
 
         <p>
           <span>
@@ -87,8 +81,6 @@ jQuery ->
 
       @
 
-    # `unrender()` removes the calling list item from the DOM. This uses
-    # [jQuery's `remove()` method](http://api.jquery.com/remove/).
     unrender: =>
       $(@el).remove()
 
@@ -98,21 +90,13 @@ jQuery ->
       letter = e.target.getAttribute('letter')
       GoogleMaps.dropMarker(latitude, longitude, 'BOUNCE', letter)
 
-
-    # `remove()` calls the model's
-    # [`destroy()`](http://documentcloud.github.com/backbone/#Model-destroy)
-    # method, removing the model from its collection. `destroy()` would
-    # normally delete the record from its persistent storage, but we'll
-    # override this in `Backbone.sync` below.
     remove: -> @model.destroy()
 
-    # `ResultView`s now respond to two click actions for each `Item`.
+    # `ResultView`s now respond to click actions for each `Item`.
     events:
       'click .location': 'onClickLocation'
 
 
-  # We no longer need to modify the `ResultsView` because `swap` and `delete` are
-  # called on each `Item`.
   class ResultsView extends Backbone.View
 
     el: $ 'span#results'
@@ -132,8 +116,9 @@ jQuery ->
 
     renderNoResult: ->
       $('#reverse-geo').html """
-      <h4>No location selected</h4>
+      <h4>Please select a location.</h4>
       """
+
       $(@el).html """
       <span id="no-result">
          <div class="panel panel-default">

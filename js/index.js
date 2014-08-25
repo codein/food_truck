@@ -86,7 +86,7 @@
       };
 
       ResultView.prototype.render = function() {
-        $(this.el).html("\n<div class=\"panel panel-default\">\n  <div class=\"panel-heading\">\n    <i class=\"fa fa-truck\"></i>\n    <a href=\"\">" + (this.model.get('applicant')) + "</a>\n    <span class=\"badge pull-right\"> " + (this.model.get('facilitytype')) + "</span>\n  </div>\n</div>\n<p><i class=\"fa fa-spoon\"></i><i class=\"fa fa-cutlery\"></i> " + (this.model.get('fooditems').replace(/:/g, ',')) + "</p>\n\n<p>\n    <img src=\"http://maps.google.com/mapfiles/marker" + (this.model.get('letter')) + ".png\"/>\n  <span class=\"location\">\n    <a href=\"#\" letter=" + (this.model.get('letter')) + " longitude=" + (this.model.get('longitude')) + " latitude=" + (this.model.get('latitude')) + ">\n      " + (this.model.get('address')) + "\n      <i class=\"fa fa-location-arrow\"></i>\n    </a>\n  </span>\n</p>\n\n<p>\n  <span>\n    <i class=\"fa fa-clock-o\"></i>\n    <a href=\"" + (this.model.get('schedule')) + "\">\n      Schedule\n    </a>\n  </span>\n</p>\n\n<hr>");
+        $(this.el).html("\n<div class=\"panel panel-default\">\n  <div class=\"panel-heading\">\n    <i class=\"fa fa-truck\"></i>\n    <a href=\"\">" + (this.model.get('applicant')) + "</a>\n    <span class=\"badge pull-right\"> " + (this.model.get('facilitytype')) + "</span>\n  </div>\n</div>\n<p>" + (this.model.get('status')) + "</p>\n<p><i class=\"fa fa-spoon\"></i><i class=\"fa fa-cutlery\"></i> " + (this.model.get('fooditems').replace(/:/g, ',')) + "</p>\n\n<p>\n    <img src=\"http://maps.google.com/mapfiles/marker" + (this.model.get('letter')) + ".png\"/>\n  <span class=\"location\">\n    <a href=\"#\" letter=" + (this.model.get('letter')) + " longitude=" + (this.model.get('longitude')) + " latitude=" + (this.model.get('latitude')) + ">\n      " + (this.model.get('address')) + "\n      <i class=\"fa fa-location-arrow\"></i>\n    </a>\n  </span>\n</p>\n<p>" + (this.model.get('locationdescription')) + "</p>\n\n<p>\n  <span>\n    <i class=\"fa fa-clock-o\"></i>\n    <a href=\"" + (this.model.get('schedule')) + "\">\n      Schedule\n    </a>\n  </span>\n</p>\n\n<hr>");
         return this;
       };
 
@@ -138,7 +138,7 @@
       };
 
       ResultsView.prototype.renderNoResult = function() {
-        $('#reverse-geo').html("<h4>No location selected</h4>");
+        $('#reverse-geo').html("<h4>Please select a location.</h4>");
         return $(this.el).html("<span id=\"no-result\">\n   <div class=\"panel panel-default\">\n      <div class=\"panel-heading\">\n        <a href=\"\">No Results</a>\n        <span class=\"badge pull-right\">0</span>\n      </div>\n    </div>\n    <p><i class=\"fa fa-keyboard-o\"></i> Click on a location in map</p>\n    <p><i class=\"fa fa-chevron-down fa-3\"></i>   or   <i class=\"fa fa-chevron-up fa-3\"></i></p>\n    <p><i class=\"fa fa-hand-o-up\"></i> Click one from below</p>\n    <ul id=\"search-suggestions\">\n      <li><a latitude=\"37.8018\" longitude=\"-122.4198\" href=\"#\">Russian Hill</a></li>\n      <li><a latitude=\"37.7952\" longitude=\"-122.4029\" href=\"#\">Financial District</a></li>\n      <li><a latitude=\"37.793230\" longitude=\"-122.414480\" href=\"#\">Nob Hill</a></li>\n      <li><a latitude=\"37.778448826783546\" longitude=\"-122.40564800798893\" href=\"#\">South of Market</a></li>\n      <li><a latitude=\"37.759179946191786\" longitude=\"-122.38921143114567\" href=\"#\">Dogpatch</a></li>\n    </ul>\n<span>");
       };
 

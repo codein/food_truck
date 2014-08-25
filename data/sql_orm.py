@@ -47,6 +47,8 @@ class MobileFoodFacility(Base):
         'longitude',
         'address',
         'schedule',
+        'status',
+        'locationdescription',
     ]
 
     def __init__(self, **kwargs):
